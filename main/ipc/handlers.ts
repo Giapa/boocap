@@ -19,11 +19,11 @@ function getChapters(bookId: number): Chapter[] {
 }
 
 async function uploadBook(filePath: string): Promise<BookWithChapters> {
+  const parsed = await parseEpub(filePath);
+
   const title = path.basename(filePath, ".epub");
   const repo = getBookRepo();
-
   const book = repo.insertBook(title, filePath);
-  const parsed = await parseEpub(filePath);
 
   const chapters: Chapter[] = parsed.map((ch) => {
     return repo.insertChapter(book.id, ch.position, ch.title, ch.text);
