@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
-import type { ElectronAPI } from "../renderer/src/shared/types/electron-api";
+import type { ElectronAPI } from "../shared/types/electron-api";
 
 const api: ElectronAPI = {
   getBooks: () => ipcRenderer.invoke("getBooks"),

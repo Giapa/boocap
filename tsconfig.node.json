@@ -11,5 +11,5 @@
     "declaration": true,
     "types": ["node"]
   },
-  "include": ["main/**/*.ts", "renderer/**/*.ts", "electron.vite.config.ts"]
+  "include": ["main/**/*.ts", "shared/**/*.ts", "electron.vite.config.ts"]
 }
