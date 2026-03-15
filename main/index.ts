@@ -23,7 +23,8 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
-  initDb(app.getPath("userData"));
+  const dbPath = app.isPackaged ? app.getPath("userData") : process.cwd();
+  initDb(dbPath);
   createWindow();
 
   app.on("activate", () => {

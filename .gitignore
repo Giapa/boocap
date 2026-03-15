@@ -26,3 +26,6 @@ yarn-error.log*
 
 # Electron
 /dist_electron
+
+# Database
+*.db
