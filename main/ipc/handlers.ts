@@ -4,6 +4,7 @@ import * as settingsService from "../services/SettingsService";
 import * as bookService from "../services/BookService";
 import { BookRepository } from "../repositories/BookRepository";
 import { SummaryRepository } from "../repositories/SummaryRepository";
+import { appEvents } from "../events";
 import { getDb } from "../db/init";
 
 let bookRepo: BookRepository;
@@ -21,6 +22,10 @@ export function registerHandlers(): void {
   bookRepo = new BookRepository(db);
   summaryRepo = new SummaryRepository(db);
 
+  appEvents.on("uploadProgress", (progress) => {
+    sendToRenderer("uploadProgress", progress);
+  });
+
   ipcMain.handle("getBooks", () => bookRepo.getAllBooks());
 
   ipcMain.handle("getChapters", (_event, bookId: number) =>
@@ -28,9 +33,7 @@ export function registerHandlers(): void {
   );
 
   ipcMain.handle("uploadBook", (_event, filePath: string) =>
-    bookService.uploadBook(bookRepo, summaryRepo, filePath, (progress) =>
-      sendToRenderer("uploadProgress", progress),
-    ),
+    bookService.uploadBook(bookRepo, summaryRepo, filePath),
   );
 
   ipcMain.handle("getSummary", (_event, bookId: number, chapterIndex: number) =>

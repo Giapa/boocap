@@ -1,17 +1,17 @@
 import path from "path";
 import type { BookWithChapters, Chapter } from "../../shared/types";
 import { parseEpub } from "./EpubService";
-import { summarizeChapters, type SummarizeProgress } from "./SummarizationService";
+import { summarizeChapters } from "./SummarizationService";
 import { createProvider } from "../llm";
 import { BookRepository } from "../repositories/BookRepository";
 import { SummaryRepository } from "../repositories/SummaryRepository";
+import { appEvents } from "../events";
 import * as settingsService from "./SettingsService";
 
 export async function uploadBook(
   bookRepo: BookRepository,
   summaryRepo: SummaryRepository,
   filePath: string,
-  onProgress?: (progress: SummarizeProgress) => void,
 ): Promise<BookWithChapters> {
   const parsed = await parseEpub(filePath);
 
@@ -25,7 +25,9 @@ export async function uploadBook(
   });
 
   const provider = createProvider(settingsService.getSettings());
-  const summaries = await summarizeChapters(provider, chapters, chapterTexts, onProgress);
+  const summaries = await summarizeChapters(provider, chapters, chapterTexts, (progress) =>
+    appEvents.emit("uploadProgress", progress),
+  );
 
   for (let i = 0; i < summaries.length; i++) {
     summaryRepo.saveSummary(book.id, i, summaries[i]);
