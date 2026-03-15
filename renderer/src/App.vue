@@ -1,5 +1,4 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <h1 class="text-3xl font-bold text-center mt-20">BooCap</h1>

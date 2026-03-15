@@ -1,32 +1,32 @@
-import { defineConfig } from 'electron-vite'
-import vue from '@vitejs/plugin-vue'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from "electron-vite";
+import vue from "@vitejs/plugin-vue";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   main: {
     build: {
-      outDir: 'out/main',
+      outDir: "out/main",
       rollupOptions: {
-        input: 'main/index.ts'
-      }
-    }
+        input: "main/index.ts",
+      },
+    },
   },
   preload: {
     build: {
-      outDir: 'out/preload',
+      outDir: "out/preload",
       rollupOptions: {
-        input: 'main/preload.ts'
-      }
-    }
+        input: "main/preload.ts",
+      },
+    },
   },
   renderer: {
-    root: 'renderer',
+    root: "renderer",
     build: {
-      outDir: '../out/renderer',
+      outDir: "../out/renderer",
       rollupOptions: {
-        input: 'renderer/index.html'
-      }
+        input: "renderer/index.html",
+      },
     },
-    plugins: [vue(), tailwindcss()]
-  }
-})
+    plugins: [vue(), tailwindcss()],
+  },
+});
