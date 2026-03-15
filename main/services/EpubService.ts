@@ -1,3 +1,4 @@
+import { existsSync } from "fs";
 import EPub from "epub";
 import * as cheerio from "cheerio";
 
@@ -53,6 +54,10 @@ export interface ParsedChapter {
 }
 
 export async function parseEpub(filePath: string): Promise<ParsedChapter[]> {
+  if (!existsSync(filePath)) {
+    throw new Error(`File not found: ${filePath}`);
+  }
+
   const epub = new EPub(filePath);
   await epub.parse();
 

@@ -10,7 +10,7 @@ defineEmits<{
   back: [];
 }>();
 
-const { chapters, chaptersLoading, activeIndex, summary, summaryLoading, selectChapter } =
+const { chapters, chaptersLoading, activeIndex, summary, summaryLoading, summaryError, selectChapter } =
   useReading(props.bookId);
 </script>
 
@@ -52,6 +52,8 @@ const { chapters, chaptersLoading, activeIndex, summary, summaryLoading, selectC
         </h2>
         <p class="text-gray-300 whitespace-pre-wrap leading-relaxed">{{ summary }}</p>
       </div>
+
+      <p v-else-if="summaryError" class="text-red-400">{{ summaryError }}</p>
 
       <p v-else class="text-gray-500">No summary available for this chapter.</p>
     </main>

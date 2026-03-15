@@ -22,8 +22,12 @@ export function useSettings() {
   }, undefined);
 
   async function save() {
-    await window.electronAPI.saveSettings({ provider: provider.value, apiKey: apiKey.value });
-    showNotification("Settings saved", "success", 2000);
+    try {
+      await window.electronAPI.saveSettings({ provider: provider.value, apiKey: apiKey.value });
+      showNotification("Settings saved", "success", 2000);
+    } catch (e) {
+      showNotification(e instanceof Error ? e.message : "Failed to save settings", "error");
+    }
   }
 
   return { provider, apiKey, loading: isLoading, save, providerOptions: PROVIDER_OPTIONS };

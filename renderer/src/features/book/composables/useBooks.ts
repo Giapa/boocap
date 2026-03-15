@@ -1,10 +1,12 @@
 import { ref } from "vue";
 import { useAsyncState } from "@vueuse/core";
 import type { Book, BookWithChapters } from "../../../../../shared/types";
+import { useNotification } from "../../../shared/composables/useNotification";
 
 export function useBooks() {
   const uploading = ref(false);
   const uploadError = ref("");
+  const { show: showNotification } = useNotification();
 
   const {
     state: books,
@@ -24,7 +26,9 @@ export function useBooks() {
       await refresh();
       return result;
     } catch (e) {
-      uploadError.value = e instanceof Error ? e.message : String(e);
+      const message = e instanceof Error ? e.message : "Failed to upload book";
+      uploadError.value = message;
+      showNotification(message, "error");
       return null;
     } finally {
       uploading.value = false;
