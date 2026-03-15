@@ -1,4 +1,6 @@
 import { ipcMain, dialog } from "electron";
+import type { Settings } from "../../shared/types";
+import * as settingsService from "../services/SettingsService";
 
 function getBooks() {
   return [];
@@ -16,12 +18,12 @@ function getSummary(_bookId: number, _chapterIndex: number) {
   return "";
 }
 
-function getSettings() {
-  return { provider: "anthropic" as const, apiKey: "" };
+function getSettings(): Settings {
+  return settingsService.getSettings();
 }
 
-function saveSettings() {
-  return;
+function saveSettings(settings: Settings): void {
+  settingsService.saveSettings(settings);
 }
 
 function checkDependencies() {
@@ -49,7 +51,7 @@ export function registerHandlers(): void {
     getSummary(bookId, chapterIndex),
   );
   ipcMain.handle("getSettings", () => getSettings());
-  ipcMain.handle("saveSettings", (_event, _settings) => saveSettings());
+  ipcMain.handle("saveSettings", (_event, settings: Settings) => saveSettings(settings));
   ipcMain.handle("checkDependencies", () => checkDependencies());
   ipcMain.handle("openFileDialog", () => openFileDialog());
 }
