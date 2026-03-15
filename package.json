@@ -17,6 +17,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@vueuse/core": "^14.2.1",
     "better-sqlite3": "^12.8.0",
     "cheerio": "^1.2.0",
     "electron-store": "^11.0.2",
