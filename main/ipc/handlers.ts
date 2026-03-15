@@ -1,21 +1,38 @@
+import path from "path";
 import { ipcMain, dialog } from "electron";
-import type { Settings } from "../../shared/types";
+import type { Settings, Book, Chapter, BookWithChapters } from "../../shared/types";
 import * as settingsService from "../services/SettingsService";
-import { isUvAvailable } from "../services/EpubService";
+import { isUvAvailable, parseEpub } from "../services/EpubService";
+import { BookRepository } from "../repositories/BookRepository";
+import { getDb } from "../db/init";
 
-function getBooks() {
-  return [];
+function getBookRepo(): BookRepository {
+  return new BookRepository(getDb());
 }
 
-function getChapters(_bookId: number) {
-  return [];
+function getBooks(): Book[] {
+  return getBookRepo().getAllBooks();
 }
 
-function uploadBook(_filePath: string) {
-  return { book: null, chapters: [] };
+function getChapters(bookId: number): Chapter[] {
+  return getBookRepo().getChaptersByBookId(bookId);
 }
 
-function getSummary(_bookId: number, _chapterIndex: number) {
+async function uploadBook(filePath: string): Promise<BookWithChapters> {
+  const title = path.basename(filePath, ".epub");
+  const repo = getBookRepo();
+
+  const book = repo.insertBook(title, filePath);
+  const parsed = await parseEpub(filePath);
+
+  const chapters: Chapter[] = parsed.map((ch) => {
+    return repo.insertChapter(book.id, ch.position, ch.title, ch.text);
+  });
+
+  return { book, chapters };
+}
+
+function getSummary(_bookId: number, _chapterIndex: number): string {
   return "";
 }
 
