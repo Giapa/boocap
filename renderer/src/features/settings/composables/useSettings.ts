@@ -1,5 +1,6 @@
 import { ref } from "vue";
 import { useAsyncState } from "@vueuse/core";
+import { useNotification } from "../../../shared/composables/useNotification";
 import type { Settings } from "../../../../../shared/types";
 
 const PROVIDER_OPTIONS = [
@@ -12,7 +13,7 @@ const PROVIDER_OPTIONS = [
 export function useSettings() {
   const provider = ref<Settings["provider"]>("anthropic");
   const apiKey = ref("");
-  const saved = ref(false);
+  const { show: showNotification } = useNotification();
 
   const { isLoading } = useAsyncState(async () => {
     const settings = await window.electronAPI.getSettings();
@@ -22,9 +23,8 @@ export function useSettings() {
 
   async function save() {
     await window.electronAPI.saveSettings({ provider: provider.value, apiKey: apiKey.value });
-    saved.value = true;
-    setTimeout(() => (saved.value = false), 2000);
+    showNotification("Settings saved", "success", 2000);
   }
 
-  return { provider, apiKey, saved, loading: isLoading, save, providerOptions: PROVIDER_OPTIONS };
+  return { provider, apiKey, loading: isLoading, save, providerOptions: PROVIDER_OPTIONS };
 }

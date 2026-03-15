@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { useSettings } from "./composables/useSettings";
+import { useNotification } from "../../shared/composables/useNotification";
 import BaseSelect from "../../shared/components/BaseSelect.vue";
 import BaseInput from "../../shared/components/BaseInput.vue";
 import BaseButton from "../../shared/components/BaseButton.vue";
 import BaseSpinner from "../../shared/components/BaseSpinner.vue";
+import NotificationContainer from "../../shared/components/NotificationContainer.vue";
 
 defineEmits<{ back: [] }>();
 
-const { provider, apiKey, saved, loading, save, providerOptions } = useSettings();
+const { provider, apiKey, loading, save, providerOptions } = useSettings();
+const { notifications, dismiss } = useNotification();
 </script>
 
 <template>
@@ -22,10 +25,9 @@ const { provider, apiKey, saved, loading, save, providerOptions } = useSettings(
     <template v-else>
       <BaseSelect v-model="provider" :options="providerOptions" label="LLM Provider" />
       <BaseInput v-model="apiKey" label="API Key" placeholder="Enter your API key" type="password" />
-      <div class="flex items-center gap-3">
-        <BaseButton label="Save" @click="save" />
-        <span v-if="saved" class="text-sm text-green-400">Saved</span>
-      </div>
+      <BaseButton label="Save" @click="save" />
     </template>
   </div>
+
+  <NotificationContainer :notifications="notifications" @dismiss="dismiss" />
 </template>
