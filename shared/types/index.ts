@@ -16,6 +16,6 @@ export interface BookWithChapters {
 }
 
 export interface Settings {
-  provider: "anthropic" | "openai" | "google";
+  provider: "anthropic" | "openai" | "google" | "groq";
   apiKey: string;
 }
