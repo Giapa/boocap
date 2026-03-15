@@ -9,7 +9,39 @@ import sys
 from bs4 import BeautifulSoup
 from ebooklib import epub
 
-MIN_CHAPTER_LENGTH = 200
+MIN_CHAPTER_LENGTH = 2000
+
+SKIP_TITLES = [
+    "also by",
+    "reading order",
+    "glossary",
+    "copyright",
+    "acknowledgement",
+    "acknowledgment",
+    "about the author",
+    "table of contents",
+    "dedication",
+    "title page",
+    "cover",
+    "frontispiece",
+    "colophon",
+    "bibliography",
+    "index",
+    "appendix",
+    "thank you",
+    "note from the author",
+    "author's note",
+    "bonus",
+    "preview",
+    "excerpt",
+    "other books",
+    "books by",
+]
+
+
+def is_skip_title(title: str) -> bool:
+    lower = title.lower().strip()
+    return any(skip in lower for skip in SKIP_TITLES)
 
 
 def parse_epub(path: str) -> list[dict]:
@@ -34,6 +66,9 @@ def parse_epub(path: str) -> list[dict]:
 
         title_tag = soup.find(["h1", "h2", "h3", "title"])
         title = title_tag.get_text(strip=True) if title_tag else f"Chapter {position + 1}"
+
+        if is_skip_title(title):
+            continue
 
         chapters.append({"position": position, "title": title, "text": text})
         position += 1
