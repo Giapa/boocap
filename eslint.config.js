@@ -12,6 +12,11 @@ export default tseslint.config(
   ...pluginVue.configs["flat/recommended"],
   prettierConfig,
   {
+    rules: {
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+    },
+  },
+  {
     files: ["**/*.vue"],
     languageOptions: {
       parserOptions: {
