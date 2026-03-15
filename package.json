@@ -1,0 +1,27 @@
+{
+  "name": "boocap",
+  "version": "1.0.0",
+  "description": "Book chapter summarizer",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "typecheck": "vue-tsc --noEmit -p renderer/tsconfig.json && tsc --noEmit -p tsconfig.node.json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.1",
+    "@types/node": "^25.5.0",
+    "@vitejs/plugin-vue": "^6.0.5",
+    "electron": "^41.0.2",
+    "electron-vite": "^5.0.0",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "vue": "^3.5.30",
+    "vue-tsc": "^3.2.5"
+  }
+}
