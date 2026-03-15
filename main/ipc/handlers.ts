@@ -1,6 +1,7 @@
 import { ipcMain, dialog } from "electron";
 import type { Settings } from "../../shared/types";
 import * as settingsService from "../services/SettingsService";
+import { isUvAvailable } from "../services/EpubService";
 
 function getBooks() {
   return [];
@@ -26,8 +27,8 @@ function saveSettings(settings: Settings): void {
   settingsService.saveSettings(settings);
 }
 
-function checkDependencies() {
-  return true;
+function checkDependencies(): boolean {
+  return isUvAvailable();
 }
 
 async function openFileDialog(): Promise<string | null> {
