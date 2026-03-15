@@ -1,5 +1,5 @@
-import type { LLMProvider } from "./LLMProvider";
-import { buildPrompt } from "./LLMProvider";
+import type { LLMProvider } from "./types";
+import { buildPrompt } from "./types";
 
 export class AnthropicProvider implements LLMProvider {
   constructor(private apiKey: string) {}

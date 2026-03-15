@@ -1,30 +1,5 @@
-import type { LLMProvider } from "../providers/LLMProvider";
-import { AnthropicProvider } from "../providers/AnthropicProvider";
-import { OpenAIProvider } from "../providers/OpenAIProvider";
-import { GoogleProvider } from "../providers/GoogleProvider";
-import { GroqProvider } from "../providers/GroqProvider";
+import type { LLMProvider } from "../llm";
 import type { Chapter } from "../../shared/types";
-import { SummaryRepository } from "../repositories/SummaryRepository";
-import * as settingsService from "./SettingsService";
-
-function createProvider(): LLMProvider {
-  const { provider, apiKey } = settingsService.getSettings();
-
-  if (!apiKey) {
-    throw new Error("API key is not configured. Please set it in Settings.");
-  }
-
-  switch (provider) {
-    case "anthropic":
-      return new AnthropicProvider(apiKey);
-    case "openai":
-      return new OpenAIProvider(apiKey);
-    case "google":
-      return new GoogleProvider(apiKey);
-    case "groq":
-      return new GroqProvider(apiKey);
-  }
-}
 
 const DELAY_BETWEEN_CHAPTERS_MS = 5000;
 const MAX_RETRIES = 5;
@@ -47,7 +22,9 @@ async function summarizeWithRetry(
       if (!isRateLimit || attempt === MAX_RETRIES - 1) throw error;
 
       const waitTime = BASE_RETRY_DELAY_MS * Math.pow(2, attempt);
-      console.log(`Rate limited. Retrying in ${waitTime / 1000}s (attempt ${attempt + 1}/${MAX_RETRIES})`);
+      console.log(
+        `Rate limited. Retrying in ${waitTime / 1000}s (attempt ${attempt + 1}/${MAX_RETRIES})`,
+      );
       await delay(waitTime);
     }
   }
@@ -61,27 +38,24 @@ export interface SummarizeProgress {
   chapterTitle: string;
 }
 
-export async function summarizeBook(
-  summaryRepo: SummaryRepository,
-  bookId: number,
+export async function summarizeChapters(
+  provider: LLMProvider,
   chapters: Chapter[],
   chapterTexts: string[],
   onProgress?: (progress: SummarizeProgress) => void,
-): Promise<void> {
-  const provider = createProvider();
+): Promise<string[]> {
+  const summaries: string[] = [];
 
   for (let i = 0; i < chapters.length; i++) {
     onProgress?.({ current: i + 1, total: chapters.length, chapterTitle: chapters[i].title });
 
     const summary = await summarizeWithRetry(provider, chapters[i].title, chapterTexts[i]);
-    summaryRepo.saveSummary(bookId, i, summary);
+    summaries.push(summary);
 
     if (i < chapters.length - 1) {
       await delay(DELAY_BETWEEN_CHAPTERS_MS);
     }
   }
-}
 
-export function getSummary(summaryRepo: SummaryRepository, bookId: number, chapterIndex: number): string | null {
-  return summaryRepo.getSummary(bookId, chapterIndex);
+  return summaries;
 }
