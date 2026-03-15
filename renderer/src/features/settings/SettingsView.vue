@@ -21,7 +21,12 @@ const { provider, apiKey, loading, save, providerOptions } = useSettings();
 
     <template v-else>
       <BaseSelect v-model="provider" :options="providerOptions" label="LLM Provider" />
-      <BaseInput v-model="apiKey" label="API Key" placeholder="Enter your API key" type="password" />
+      <BaseInput
+        v-model="apiKey"
+        label="API Key"
+        placeholder="Enter your API key"
+        type="password"
+      />
       <BaseButton label="Save" @click="save" />
     </template>
   </div>

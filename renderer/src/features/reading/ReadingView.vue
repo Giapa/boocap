@@ -25,12 +25,15 @@ const { chapters, chaptersLoading, activeIndex, summary, summaryLoading, selectC
 
       <ul v-else class="flex flex-col gap-1">
         <li v-for="chapter in chapters" :key="chapter.position">
-          <button :class="[
-            'w-full text-left px-3 py-2 rounded-lg text-sm transition-colors',
-            activeIndex === chapter.position
-              ? 'bg-indigo-600 text-white'
-              : 'text-gray-300 hover:bg-gray-800',
-          ]" @click="selectChapter(chapter.position)">
+          <button
+            :class="[
+              'w-full text-left px-3 py-2 rounded-lg text-sm transition-colors',
+              activeIndex === chapter.position
+                ? 'bg-indigo-600 text-white'
+                : 'text-gray-300 hover:bg-gray-800',
+            ]"
+            @click="selectChapter(chapter.position)"
+          >
             {{ chapter.title }}
           </button>
         </li>

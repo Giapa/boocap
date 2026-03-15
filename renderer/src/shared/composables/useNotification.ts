@@ -18,7 +18,6 @@ let notificationId = 0;
 const notifications = ref<Notification[]>([]);
 
 export function useNotification(): NotificationState {
-
   function show(message: string, type: NotificationType = "info", duration = 2000) {
     const id = `notification-${notificationId++}`;
     const notification: Notification = { id, message, type };

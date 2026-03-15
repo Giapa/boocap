@@ -16,13 +16,15 @@ const { notifications, dismiss } = useNotification();
       <button class="text-lg font-bold hover:text-indigo-400 transition-colors" @click="goHome">
         BooCap
       </button>
-      <button class="text-gray-400 hover:text-white text-xl" @click="openSettings">
-        &#9881;
-      </button>
+      <button class="text-gray-400 hover:text-white text-xl" @click="openSettings">&#9881;</button>
     </header>
     <div class="flex-1 overflow-hidden">
       <BookView v-if="view === 'home'" @book-selected="openBook" />
-      <ReadingView v-else-if="view === 'reading' && activeBookId" :book-id="activeBookId" @back="goHome" />
+      <ReadingView
+        v-else-if="view === 'reading' && activeBookId"
+        :book-id="activeBookId"
+        @back="goHome"
+      />
       <SettingsView v-else-if="view === 'settings'" @back="closeSettings" />
     </div>
     <NotificationContainer :notifications="notifications" @dismiss="dismiss" />

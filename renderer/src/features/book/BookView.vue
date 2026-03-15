@@ -48,7 +48,8 @@ async function handleUpload() {
           <li v-for="book in books" :key="book.id">
             <button
               class="w-full text-left px-4 py-3 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition-colors"
-              @click="$emit('bookSelected', book.id)">
+              @click="$emit('bookSelected', book.id)"
+            >
               {{ book.title }}
             </button>
           </li>

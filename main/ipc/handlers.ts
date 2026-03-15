@@ -28,9 +28,7 @@ export function registerHandlers(): void {
 
   ipcMain.handle("getBooks", () => bookRepo.getAllBooks());
 
-  ipcMain.handle("getChapters", (_event, bookId: number) =>
-    bookRepo.getChaptersByBookId(bookId),
-  );
+  ipcMain.handle("getChapters", (_event, bookId: number) => bookRepo.getChaptersByBookId(bookId));
 
   ipcMain.handle("uploadBook", (_event, filePath: string) =>
     bookService.uploadBook(bookRepo, summaryRepo, filePath),
