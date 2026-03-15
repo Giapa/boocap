@@ -1,13 +1,26 @@
 import path from "path";
-import { ipcMain, dialog } from "electron";
+import { ipcMain, dialog, BrowserWindow } from "electron";
 import type { Settings, Book, Chapter, BookWithChapters } from "../../shared/types";
 import * as settingsService from "../services/SettingsService";
-import { isUvAvailable, parseEpub } from "../services/EpubService";
+import { parseEpub } from "../services/EpubService";
+import * as summarizationService from "../services/SummarizationService";
 import { BookRepository } from "../repositories/BookRepository";
+import { SummaryRepository } from "../repositories/SummaryRepository";
 import { getDb } from "../db/init";
 
 function getBookRepo(): BookRepository {
   return new BookRepository(getDb());
+}
+
+function getSummaryRepo(): SummaryRepository {
+  return new SummaryRepository(getDb());
+}
+
+function sendToRenderer(channel: string, data: unknown): void {
+  const win = BrowserWindow.getAllWindows()[0];
+  if (win) {
+    win.webContents.send(channel, data);
+  }
 }
 
 function getBooks(): Book[] {
@@ -22,18 +35,28 @@ async function uploadBook(filePath: string): Promise<BookWithChapters> {
   const parsed = await parseEpub(filePath);
 
   const title = path.basename(filePath, ".epub");
-  const repo = getBookRepo();
-  const book = repo.insertBook(title, filePath);
+  const bookRepo = getBookRepo();
+  const book = bookRepo.insertBook(title, filePath);
 
+  const chapterTexts: string[] = [];
   const chapters: Chapter[] = parsed.map((ch) => {
-    return repo.insertChapter(book.id, ch.position, ch.title, ch.text);
+    chapterTexts.push(ch.text);
+    return bookRepo.insertChapter(book.id, ch.position, ch.title, ch.text);
   });
+
+  await summarizationService.summarizeBook(
+    getSummaryRepo(),
+    book.id,
+    chapters,
+    chapterTexts,
+    (progress) => sendToRenderer("uploadProgress", progress),
+  );
 
   return { book, chapters };
 }
 
-function getSummary(_bookId: number, _chapterIndex: number): string {
-  return "";
+function getSummary(bookId: number, chapterIndex: number): string | null {
+  return summarizationService.getSummary(getSummaryRepo(), bookId, chapterIndex);
 }
 
 function getSettings(): Settings {
@@ -42,10 +65,6 @@ function getSettings(): Settings {
 
 function saveSettings(settings: Settings): void {
   settingsService.saveSettings(settings);
-}
-
-function checkDependencies(): boolean {
-  return isUvAvailable();
 }
 
 async function openFileDialog(): Promise<string | null> {
@@ -70,6 +89,5 @@ export function registerHandlers(): void {
   );
   ipcMain.handle("getSettings", () => getSettings());
   ipcMain.handle("saveSettings", (_event, settings: Settings) => saveSettings(settings));
-  ipcMain.handle("checkDependencies", () => checkDependencies());
   ipcMain.handle("openFileDialog", () => openFileDialog());
 }

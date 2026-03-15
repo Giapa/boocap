@@ -63,6 +63,14 @@ export class BookRepository {
     }));
   }
 
+  getChapterTitle(bookId: number, position: number): string | null {
+    const row = this.db
+      .prepare("SELECT title FROM chapters WHERE book_id = ? AND position = ?")
+      .get(bookId, position) as { title: string } | undefined;
+
+    return row?.title ?? null;
+  }
+
   getChapterText(bookId: number, position: number): string | null {
     const row = this.db
       .prepare("SELECT text FROM chapters WHERE book_id = ? AND position = ?")
