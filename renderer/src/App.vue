@@ -2,9 +2,12 @@
 import BookView from "./features/book/BookView.vue";
 import ReadingView from "./features/reading/ReadingView.vue";
 import SettingsView from "./features/settings/SettingsView.vue";
+import NotificationContainer from "./shared/components/NotificationContainer.vue";
 import { useNavigation } from "./shared/composables/useNavigation";
+import { useNotification } from "./shared/composables/useNotification";
 
 const { view, activeBookId, openSettings, closeSettings, openBook, goHome } = useNavigation();
+const { notifications, dismiss } = useNotification();
 </script>
 
 <template>
@@ -22,6 +25,7 @@ const { view, activeBookId, openSettings, closeSettings, openBook, goHome } = us
       <ReadingView v-else-if="view === 'reading' && activeBookId" :book-id="activeBookId" @back="goHome" />
       <SettingsView v-else-if="view === 'settings'" @back="closeSettings" />
     </div>
+    <NotificationContainer :notifications="notifications" @dismiss="dismiss" />
   </div>
 </template>
 

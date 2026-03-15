@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import type { NotificationType } from "../composables/useNotification";
 
 interface Props {

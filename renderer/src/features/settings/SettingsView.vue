@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { useSettings } from "./composables/useSettings";
-import { useNotification } from "../../shared/composables/useNotification";
 import BaseSelect from "../../shared/components/BaseSelect.vue";
 import BaseInput from "../../shared/components/BaseInput.vue";
 import BaseButton from "../../shared/components/BaseButton.vue";
 import BaseSpinner from "../../shared/components/BaseSpinner.vue";
-import NotificationContainer from "../../shared/components/NotificationContainer.vue";
 
 defineEmits<{ back: [] }>();
 
 const { provider, apiKey, loading, save, providerOptions } = useSettings();
-const { notifications, dismiss } = useNotification();
 </script>
 
 <template>
@@ -28,6 +25,4 @@ const { notifications, dismiss } = useNotification();
       <BaseButton label="Save" @click="save" />
     </template>
   </div>
-
-  <NotificationContainer :notifications="notifications" @dismiss="dismiss" />
 </template>
