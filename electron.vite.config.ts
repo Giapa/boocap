@@ -14,8 +14,14 @@ export default defineConfig({
   preload: {
     build: {
       outDir: "out/preload",
+      lib: {
+        entry: "main/preload.ts",
+        formats: ["cjs"],
+      },
       rollupOptions: {
-        input: "main/preload.ts",
+        output: {
+          entryFileNames: "preload.cjs",
+        },
       },
     },
   },
