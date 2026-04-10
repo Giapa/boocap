@@ -16,9 +16,18 @@ interface NotificationState {
 
 let notificationId = 0;
 const notifications = ref<Notification[]>([]);
+const DEFAULT_DURATIONS: Record<NotificationType, number> = {
+  success: 2200,
+  error: 4500,
+  info: 2800,
+};
 
 export function useNotification(): NotificationState {
-  function show(message: string, type: NotificationType = "info", duration = 2000) {
+  function show(
+    message: string,
+    type: NotificationType = "info",
+    duration = DEFAULT_DURATIONS[type],
+  ) {
     const id = `notification-${notificationId++}`;
     const notification: Notification = { id, message, type };
 

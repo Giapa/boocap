@@ -1,6 +1,7 @@
 import { ref } from "vue";
 import { useAsyncState } from "@vueuse/core";
 import type { Book, BookWithChapters } from "../../../../../shared/types";
+import { getErrorMessage } from "../../../../../shared/utils/errors";
 import { useNotification } from "../../../shared/composables/useNotification";
 
 export function useBooks() {
@@ -16,7 +17,9 @@ export function useBooks() {
 
   async function openAndUpload(): Promise<BookWithChapters | null> {
     const filePath = await window.electronAPI.openFileDialog();
-    if (!filePath) return null;
+    if (!filePath) {
+      return null;
+    }
 
     uploading.value = true;
     uploadError.value = "";
@@ -24,9 +27,10 @@ export function useBooks() {
     try {
       const result = await window.electronAPI.uploadBook(filePath);
       await refresh();
+      showNotification(`Imported ${result.book.title}`, "success");
       return result;
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Failed to upload book";
+      const message = getErrorMessage(e, "Failed to upload book");
       uploadError.value = message;
       showNotification(message, "error");
       return null;
