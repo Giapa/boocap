@@ -1,10 +1,11 @@
 import type { LLMProvider } from "./types";
 import { buildPrompt } from "./types";
+import { parseAnthropicText, parseChapterAnalysisText } from "./parsing";
 
 export class AnthropicProvider implements LLMProvider {
   constructor(private apiKey: string) {}
 
-  async summarize(chapterTitle: string, chapterText: string): Promise<string> {
+  async analyzeChapter(chapterTitle: string, chapterText: string) {
     const prompt = buildPrompt(chapterTitle, chapterText);
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -26,10 +27,6 @@ export class AnthropicProvider implements LLMProvider {
       throw new Error(`Anthropic API error (${response.status}): ${body}`);
     }
 
-    const data = (await response.json()) as {
-      content: { type: string; text: string }[];
-    };
-
-    return data.content[0].text;
+    return parseChapterAnalysisText(parseAnthropicText(await response.json()));
   }
 }

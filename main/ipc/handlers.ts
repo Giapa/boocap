@@ -1,14 +1,18 @@
 import { ipcMain, dialog, BrowserWindow } from "electron";
 import type { Settings } from "../../shared/types";
+import { getErrorMessage } from "../../shared/utils/errors";
 import * as settingsService from "../services/SettingsService";
 import * as bookService from "../services/BookService";
 import { BookRepository } from "../repositories/BookRepository";
+import { CharacterRepository } from "../repositories/CharacterRepository";
 import { SummaryRepository } from "../repositories/SummaryRepository";
 import { appEvents } from "../events";
 import { getDb } from "../db/init";
+import * as characterService from "../services/CharacterService";
 
 let bookRepo: BookRepository;
 let summaryRepo: SummaryRepository;
+let characterRepo: CharacterRepository;
 
 function sendToRenderer(channel: string, data: unknown): void {
   const win = BrowserWindow.getAllWindows()[0];
@@ -21,8 +25,7 @@ async function safe<T>(fn: () => T | Promise<T>): Promise<T> {
   try {
     return await fn();
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    throw new Error(message, { cause: error });
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -30,6 +33,7 @@ export function registerHandlers(): void {
   const db = getDb();
   bookRepo = new BookRepository(db);
   summaryRepo = new SummaryRepository(db);
+  characterRepo = new CharacterRepository(db);
 
   appEvents.on("uploadProgress", (progress) => {
     sendToRenderer("uploadProgress", progress);
@@ -42,11 +46,15 @@ export function registerHandlers(): void {
   );
 
   ipcMain.handle("uploadBook", (_e, filePath: string) =>
-    safe(() => bookService.uploadBook(bookRepo, summaryRepo, filePath)),
+    safe(() => bookService.uploadBook(bookRepo, summaryRepo, characterRepo, filePath)),
   );
 
   ipcMain.handle("getSummary", (_e, bookId: number, chapterIndex: number) =>
     safe(() => summaryRepo.getSummary(bookId, chapterIndex)),
+  );
+
+  ipcMain.handle("searchCharacterFamilyTree", (_e, bookId: number, characterName: string) =>
+    safe(() => characterService.searchCharacterFamilyTree(characterRepo, bookId, characterName)),
   );
 
   ipcMain.handle("getSettings", () => safe(() => settingsService.getSettings()));

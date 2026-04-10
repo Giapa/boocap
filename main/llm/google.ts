@@ -1,10 +1,11 @@
 import type { LLMProvider } from "./types";
 import { buildPrompt } from "./types";
+import { parseChapterAnalysisText, parseGoogleText } from "./parsing";
 
 export class GoogleProvider implements LLMProvider {
   constructor(private apiKey: string) {}
 
-  async summarize(chapterTitle: string, chapterText: string): Promise<string> {
+  async analyzeChapter(chapterTitle: string, chapterText: string) {
     const prompt = buildPrompt(chapterTitle, chapterText);
 
     const response = await fetch(
@@ -25,10 +26,6 @@ export class GoogleProvider implements LLMProvider {
       throw new Error(`Google API error (${response.status}): ${body}`);
     }
 
-    const data = (await response.json()) as {
-      candidates: { content: { parts: { text: string }[] } }[];
-    };
-
-    return data.candidates[0].content.parts[0].text;
+    return parseChapterAnalysisText(parseGoogleText(await response.json()));
   }
 }

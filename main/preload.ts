@@ -7,9 +7,19 @@ const api: ElectronAPI = {
   getChapters: (bookId) => ipcRenderer.invoke("getChapters", bookId),
   uploadBook: (filePath) => ipcRenderer.invoke("uploadBook", filePath),
   onUploadProgress: (callback) => {
-    ipcRenderer.on("uploadProgress", (_event, progress: UploadProgress) => callback(progress));
+    const listener = (_event: Electron.IpcRendererEvent, progress: UploadProgress) => {
+      callback(progress);
+    };
+
+    ipcRenderer.on("uploadProgress", listener);
+
+    return () => {
+      ipcRenderer.removeListener("uploadProgress", listener);
+    };
   },
   getSummary: (bookId, chapterIndex) => ipcRenderer.invoke("getSummary", bookId, chapterIndex),
+  searchCharacterFamilyTree: (bookId, characterName) =>
+    ipcRenderer.invoke("searchCharacterFamilyTree", bookId, characterName),
   getSettings: () => ipcRenderer.invoke("getSettings"),
   saveSettings: (settings) => ipcRenderer.invoke("saveSettings", settings),
   openFileDialog: () => ipcRenderer.invoke("openFileDialog"),

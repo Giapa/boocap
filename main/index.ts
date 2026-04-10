@@ -12,8 +12,18 @@ function createWindow(): void {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      sandbox: true,
       preload: path.join(__dirname, "../preload/preload.cjs"),
     },
+  });
+
+  win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  win.webContents.on("will-navigate", (event, url) => {
+    const currentUrl = win.webContents.getURL();
+
+    if (currentUrl.length > 0 && url !== currentUrl) {
+      event.preventDefault();
+    }
   });
 
   if (process.env.ELECTRON_RENDERER_URL) {

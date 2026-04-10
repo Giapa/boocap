@@ -1,5 +1,10 @@
 import Store from "electron-store";
 import type { Settings } from "../../shared/types";
+import {
+  sanitizeSettings,
+  validateSettingsForSummarization,
+  validateStoredSettings,
+} from "./settingsValidation";
 
 const defaults: Settings = {
   provider: "anthropic",
@@ -11,9 +16,19 @@ const store = new Store<{ settings: Settings }>({
 });
 
 export function getSettings(): Settings {
-  return store.get("settings");
+  return sanitizeSettings(store.get("settings"));
 }
 
 export function saveSettings(settings: Settings): void {
-  store.set("settings", settings);
+  const sanitized = sanitizeSettings(settings);
+
+  validateStoredSettings(sanitized);
+  store.set("settings", sanitized);
+}
+
+export function getSettingsForSummarization(): Settings {
+  const settings = getSettings();
+
+  validateSettingsForSummarization(settings);
+  return settings;
 }

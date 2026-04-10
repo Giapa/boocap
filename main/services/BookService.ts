@@ -1,19 +1,35 @@
 import path from "path";
+import { existsSync } from "fs";
 import type { BookWithChapters, Chapter } from "../../shared/types";
 import { parseEpub } from "./EpubService";
-import { summarizeChapters } from "./SummarizationService";
+import { analyzeChapters } from "./SummarizationService";
 import { createProvider } from "../llm";
-import { BookRepository } from "../repositories/BookRepository";
-import { SummaryRepository } from "../repositories/SummaryRepository";
+import type { BookRepository } from "../repositories/BookRepository";
+import type { CharacterRepository } from "../repositories/CharacterRepository";
+import type { SummaryRepository } from "../repositories/SummaryRepository";
 import { appEvents } from "../events";
 import * as settingsService from "./SettingsService";
 
 export async function uploadBook(
   bookRepo: BookRepository,
   summaryRepo: SummaryRepository,
+  characterRepo: CharacterRepository,
   filePath: string,
 ): Promise<BookWithChapters> {
+  if (!existsSync(filePath)) {
+    throw new Error(`EPUB file not found: ${filePath}`);
+  }
+
+  if (path.extname(filePath).toLowerCase() !== ".epub") {
+    throw new Error("Only EPUB files are supported.");
+  }
+
+  const settings = settingsService.getSettingsForSummarization();
   const parsed = await parseEpub(filePath);
+
+  if (parsed.length === 0) {
+    throw new Error("No readable chapters were found in this EPUB.");
+  }
 
   const title = path.basename(filePath, ".epub");
   const book = bookRepo.insertBook(title, filePath);
@@ -24,13 +40,14 @@ export async function uploadBook(
     return bookRepo.insertChapter(book.id, ch.position, ch.title, ch.text);
   });
 
-  const provider = createProvider(settingsService.getSettings());
-  const summaries = await summarizeChapters(provider, chapters, chapterTexts, (progress) =>
+  const provider = createProvider(settings);
+  const analyses = await analyzeChapters(provider, chapters, chapterTexts, (progress) =>
     appEvents.emit("uploadProgress", progress),
   );
 
-  for (let i = 0; i < summaries.length; i++) {
-    summaryRepo.saveSummary(book.id, i, summaries[i]);
+  for (let i = 0; i < analyses.length; i++) {
+    summaryRepo.saveSummary(book.id, i, analyses[i].summary);
+    characterRepo.saveFamilyRelations(book.id, i, analyses[i].familyRelations);
   }
 
   return { book, chapters };

@@ -34,7 +34,9 @@ export class BookRepository {
       | { id: number; title: string; file_path: string }
       | undefined;
 
-    if (!row) return null;
+    if (!row) {
+      return null;
+    }
 
     return {
       id: row.id,

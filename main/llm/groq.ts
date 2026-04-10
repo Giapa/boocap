@@ -1,10 +1,11 @@
 import type { LLMProvider } from "./types";
 import { buildPrompt } from "./types";
+import { parseChapterAnalysisText, parseChatCompletionText } from "./parsing";
 
 export class GroqProvider implements LLMProvider {
   constructor(private apiKey: string) {}
 
-  async summarize(chapterTitle: string, chapterText: string): Promise<string> {
+  async analyzeChapter(chapterTitle: string, chapterText: string) {
     const prompt = buildPrompt(chapterTitle, chapterText);
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -24,10 +25,6 @@ export class GroqProvider implements LLMProvider {
       throw new Error(`Groq API error (${response.status}): ${body}`);
     }
 
-    const data = (await response.json()) as {
-      choices: { message: { content: string } }[];
-    };
-
-    return data.choices[0].message.content;
+    return parseChapterAnalysisText(parseChatCompletionText(await response.json(), "Groq"));
   }
 }
