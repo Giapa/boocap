@@ -13,6 +13,12 @@ export default tseslint.config(
   prettierConfig,
   {
     rules: {
+      curly: ["error", "all"],
+      eqeqeq: ["error", "always"],
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        { prefer: "type-imports", fixStyle: "inline-type-imports" },
+      ],
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
     },
   },
