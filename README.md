@@ -20,8 +20,10 @@ BooCap is a desktop app that parses EPUB books, extracts chapters, and generates
 - **Multi-Provider AI** — Choose between Anthropic, OpenAI, Google, or Groq (free tier available)
 - **Local-First** — All data stored in a local SQLite database. Your books and summaries never leave your machine
 - **Real-Time Progress** — Live progress updates while chapters are being summarized
+- **Token-Aware Preprocessing** — Duplicate chapters are skipped, noisy whitespace is collapsed, repeated chapter titles are trimmed, and very long inputs are cut on cleaner boundaries before they reach a model
 - **Rate-Limit Resilient** — Built-in retry with exponential backoff to handle API throttling
 - **Chapter Navigation** — Browse summaries chapter-by-chapter with a sidebar interface
+- **Input Validation** — Uploads fail early if the EPUB path is invalid or the selected provider key is missing
 
 ## Getting Started
 
@@ -49,9 +51,15 @@ npm run dev
 
 1. **Upload** — Select an EPUB file through the native file dialog
 2. **Parse** — Chapters are extracted and filtered by content length and title
-3. **Summarize** — Each chapter is sent to your chosen LLM provider with a 5s delay between requests
+3. **Summarize** — Each cleaned chapter is sent to your chosen LLM provider with retry-on-rate-limit behavior instead of a fixed per-chapter delay
 4. **Cache** — Summaries are stored in SQLite so you only pay for generation once
 5. **Read** — Browse chapter summaries anytime, even offline
+
+## Quality Guardrails
+
+- `npm run typecheck` validates both the Electron main process and the Vue renderer
+- `npm run lint` enforces a stricter baseline for consistency and imports
+- `npm run test` covers settings validation, prompt preparation, response parsing, and summarization retry logic
 
 ## Architecture
 
